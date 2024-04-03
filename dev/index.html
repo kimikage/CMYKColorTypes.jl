@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Introduction · CMYKColorTypes</title><meta name="title" content="Introduction · CMYKColorTypes"/><meta property="og:title" content="Introduction · CMYKColorTypes"/><meta property="twitter:title" content="Introduction · CMYKColorTypes"/><meta name="description" content="Documentation for CMYKColorTypes."/><meta property="og:description" content="Documentation for CMYKColorTypes."/><meta property="twitter:description" content="Documentation for CMYKColorTypes."/><script data-outdated-warner src="assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="search_index.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script><link href="assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href><img src="assets/logo.svg" alt="CMYKColorTypes logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href>CMYKColorTypes</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li class="is-active"><a class="tocitem" href>Introduction</a><ul class="internal"><li><a class="tocitem" href="#Type-design"><span>Type design</span></a></li><li><a class="tocitem" href="#Conversion"><span>Conversion</span></a></li><li><a class="tocitem" href="#Arithmetic"><span>Arithmetic</span></a></li></ul></li><li><a class="tocitem" href="references/">References</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Introduction</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Introduction</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/kimikage/CMYKColorTypes.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/kimikage/CMYKColorTypes.jl/blob/main/docs/src/index.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="CMYKColorTypes"><a class="docs-heading-anchor" href="#CMYKColorTypes">CMYKColorTypes</a><a id="CMYKColorTypes-1"></a><a class="docs-heading-anchor-permalink" href="#CMYKColorTypes" title="Permalink"></a></h1><p>This package is an add-on to <a href="https://github.com/JuliaGraphics/ColorTypes.jl">ColorTypes</a>, and provides color types for <a href="https://en.wikipedia.org/wiki/CMYK_color_model">process color</a>, i.e. cyan, magenta, yellow and key (black) color model.</p><h2 id="Type-design"><a class="docs-heading-anchor" href="#Type-design">Type design</a><a id="Type-design-1"></a><a class="docs-heading-anchor-permalink" href="#Type-design" title="Permalink"></a></h2><p>The <a href="references/#CMYKColorTypes.CMYK"><code>CMYK</code></a> type is defined as follows:</p><pre><code class="language-julia hljs">struct CMYK{T &lt;: Fractional} &lt;: AbstractCMYK{T}
+    c::T # cyan in [0, 1]
+    m::T # magenta in [0, 1]
+    y::T # yellow in [0, 1]
+    k::T # black in [0, 1]
+    CMYK{T}(c::T, m::T, y::T, k::T=zero(T)) where {T} = new{T}(c, m, y, k)
+end</code></pre><p>For each component value, <code>0</code> means 0% ink density and <code>1</code> means 100% ink density. Thus, <code>CMYK(0, 0, 0, 0)</code> means white (i.e. the underlying color) and <code>CMYK(1, 1, 1, 1)</code> means <a href="https://en.wikipedia.org/wiki/Registration_black">registration black</a>  (or 400% black). Note that some graphics tools and image formats may encode 0% ink density as a saturated value and 100% ink density as zero. You can invert the scale using <a href="references/#CMYKColorTypes.complement"><code>CMYKColorTypes.complement</code></a>.</p><p>The parameter <code>T</code> specifies the type of the components. You can use <code>AbstractFloat</code> and <a href="https://github.com/JuliaMath/FixedPointNumbers.jl"><code>FixedPoint</code></a> for <code>T</code>. It defaults to <code>N0f8</code>.</p><p>In addition, the transparent color variants <a href="references/#CMYKColorTypes.ACMYK"><code>ACMYK</code></a> and <a href="references/#CMYKColorTypes.CMYKA"><code>CMYKA</code></a> are defined.</p><p>Similarly to <code>AbstractRGB</code> and <code>TransparentRGB</code>, <code>CMYK</code> and <code>ACMYK</code>/<code>CMYKA</code> are defined as subtypes of <a href="references/#CMYKColorTypes.AbstractCMYK"><code>AbstractCMYK</code></a> and <a href="references/#CMYKColorTypes.TransparentCMYK"><code>TransparentCMYK</code></a> respectively. Although this package does not define any other concrete types, some subtypes specific to certain storage formats or color profiles may be used. When writing generic code, it is recommended to use the accessors (<a href="references/#CMYKColorTypes.cyan"><code>cyan</code></a>, <a href="references/#CMYKColorTypes.magenta"><code>magenta</code></a>, <a href="references/#CMYKColorTypes.yellow"><code>yellow</code></a>, and <a href="references/#CMYKColorTypes.black"><code>black</code></a>), instead of accessing the fields directly.</p><p><code>CMYK</code>, <code>ACMYK</code>, and <code>CMYKA</code> have the constructors within the same style as for the other color types defined in ColorTypes.jl.</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; CMYK{Float32}(1, 0.5, 0.2, 0) # explicitly specifying the component type</code><code class="nohighlight hljs ansi" style="display:block;">CMYK{Float32}(1.0f0,0.5f0,0.2f0,0.0f0)</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; CMYK(1, 0, 0, 0) # If all arguments are integers (`0` or `1`), `N0f8` will be used</code><code class="nohighlight hljs ansi" style="display:block;">CMYK{N0f8}(1.0,0.0,0.0,0.0)</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; CMYK(1, 0.5, 0.2f0, 0) # the component type is promoted to `Float64`</code><code class="nohighlight hljs ansi" style="display:block;">CMYK{Float64}(1.0,0.5,0.20000000298023224,0.0)</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; CMYK(1.0f0, 0.5f0, 0.2f0) # `k` (black) can be omitted</code><code class="nohighlight hljs ansi" style="display:block;">CMYK{Float32}(1.0f0,0.5f0,0.2f0,0.0f0)</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; ACMYK(1, 0.5, 0.2, 0, 0.8) # alpha (`= 0.8`) is always last</code><code class="nohighlight hljs ansi" style="display:block;">ACMYK{Float64}(1.0,0.5,0.2,0.0,0.8)</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; ACMYK(CMYK(1, 0, 0, 0)) # alpha defaults to `1`</code><code class="nohighlight hljs ansi" style="display:block;">ACMYK{N0f8}(1.0,0.0,0.0,0.0,1.0)</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; CMYKA(ACMYK(1, 0, 0, 0, 1), 0.8) # overwriting the alpha</code><code class="nohighlight hljs ansi" style="display:block;">CMYKA{N0f8}(1.0,0.0,0.0,0.0,0.8)</code></pre><h2 id="Conversion"><a class="docs-heading-anchor" href="#Conversion">Conversion</a><a id="Conversion-1"></a><a class="docs-heading-anchor-permalink" href="#Conversion" title="Permalink"></a></h2><p>In principle, CMYKColorTypes does not support the color space conversion. While <code>RGB</code> is associated with an absolute color space &quot;sRGB&quot; by default, <code>CMYK</code> is not associated with a specific color profile. There is no point in conversions which are not based on color profiles, and the handling of color profiles is out of scope of this minimal package.</p><p>In practice, however, CMYKColorTypes does implement the conversion between <code>AbstractRGB</code> and <code>CMYK</code> only for preview purposes.</p><div class="admonition is-warning"><header class="admonition-header">Warning</header><div class="admonition-body"><p>You should never use the default conversions for commercial printing or academic papers. For color space conversions, please use proper color profiles and configurations (e.g. rendering intent) with a color management system.</p><p>The implementation of the default conversions is completely custom to this package, and there are no intentions to keep it compatible in future versions.</p></div></div><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; using ColorTypes;</code><code class="nohighlight hljs ansi" style="display:block;">ERROR: ArgumentError: Package ColorTypes not found in current path, maybe you meant `import/using ..ColorTypes`.
+- Otherwise, run `import Pkg; Pkg.add(&quot;ColorTypes&quot;)` to install the ColorTypes package.</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; convert(RGB, CMYK(1.0, 0.5, 0.2, 0.1))</code><code class="nohighlight hljs ansi" style="display:block;">ERROR: UndefVarError: `RGB` not defined</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; convert(CMYK, RGB24(1.0, 0.5, 0.2))</code><code class="nohighlight hljs ansi" style="display:block;">ERROR: UndefVarError: `RGB24` not defined</code></pre><pre><code class="language-julia hljs">using Colors
+[CMYK(1.0, 0.5, 0.2, 0.1), CMYK(0.1, 1.0, 0.5, 0.2), CMYK(0.2, 0.1, 1.0, 0.5)]</code></pre><img src='data:image/svg+xml;utf-8,<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1"
+     width="75mm" height="25mm"
+     viewBox="0 0 3 1" preserveAspectRatio="none"
+     shape-rendering="crispEdges" stroke="none">
+<rect width=".96" height=".96" x="0" y="0" fill="%230F5999" />
+<rect width=".96" height=".96" x="1" y="0" fill="%23C5163F" />
+<rect width=".96" height=".96" x="2" y="0" fill="%2373920C" />
+</svg>'/><p>On the other hand, in some use cases, conversion methods that are independent of color profiles and devices may be useful. Hence, this package provides the conversion methods defined in <a href="https://www.w3.org/TR/css-color-4/#cmyk-rgb">CSS Color Module Level 4 (Working Draft)</a> as <a href="references/#CMYKColorTypes.naively_convert"><code>CMYKColorTypes.naively_convert</code></a>.</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; using CMYKColorTypes: naively_convert;</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; seagreen = colorant&quot;seagreen&quot;</code><code class="nohighlight hljs ansi" style="display:block;">RGB{N0f8}(0.18,0.545,0.341)</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; naively_convert(CMYK, seagreen)</code><code class="nohighlight hljs ansi" style="display:block;">CMYK{N0f8}(0.671,0.0,0.373,0.455)</code></pre><p>Of course, this methods yields very different results from conversions based on practical color profiles for printed materials.</p><ul><li>Lab colors from the Fogra MediaWedge CMYK V3.0</li></ul><img src='data:image/svg+xml;utf-8,<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1"
+     width="180mm" height="25mm"
+     viewBox="0 0 24 3" preserveAspectRatio="none"
+     shape-rendering="crispEdges" stroke="none">
+<rect width=".87" height=".88" x="0" y="0" fill="%23008ED8" />
+<rect width=".87" height=".88" x="1" y="0" fill="%2300BBF1" />
+<rect width=".87" height=".88" x="2" y="0" fill="%2393D7F9" />
+<rect width=".87" height=".88" x="3" y="0" fill="%23C6E6FB" />
+<rect width=".87" height=".88" x="4" y="0" fill="%23DEEDFB" />
+<rect width=".87" height=".88" x="5" y="0" fill="%23EC008C" />
+<rect width=".87" height=".88" x="6" y="0" fill="%23F565B2" />
+<rect width=".87" height=".88" x="7" y="0" fill="%23FBA5D7" />
+<rect width=".87" height=".88" x="8" y="0" fill="%23FBCBEC" />
+<rect width=".87" height=".88" x="9" y="0" fill="%23F9E0F4" />
+<rect width=".87" height=".88" x="10" y="0" fill="%23FFEA00" />
+<rect width=".87" height=".88" x="11" y="0" fill="%23FFEE60" />
+<rect width=".87" height=".88" x="12" y="0" fill="%23FEF1AB" />
+<rect width=".87" height=".88" x="13" y="0" fill="%23FBF3D3" />
+<rect width=".87" height=".88" x="14" y="0" fill="%23F8F4E7" />
+<rect width=".87" height=".88" x="15" y="0" fill="%23E3E2E8" />
+<rect width=".87" height=".88" x="16" y="0" fill="%23D1D0D5" />
+<rect width=".87" height=".88" x="17" y="0" fill="%23ADADB1" />
+<rect width=".87" height=".88" x="18" y="0" fill="%23868689" />
+<rect width=".87" height=".88" x="19" y="0" fill="%23575759" />
+<rect width=".87" height=".88" x="20" y="0" fill="%23242424" />
+<rect width=".87" height=".88" x="21" y="0" fill="%232E141B" />
+<rect width=".87" height=".88" x="22" y="0" fill="%2389392F" />
+<rect width=".87" height=".88" x="23" y="0" fill="%235A562A" />
+<rect width=".87" height=".88" x="0" y="1" fill="%232D2891" />
+<rect width=".87" height=".88" x="1" y="1" fill="%236F50AA" />
+<rect width=".87" height=".88" x="2" y="1" fill="%23A78CCF" />
+<rect width=".87" height=".88" x="3" y="1" fill="%23CEBCE8" />
+<rect width=".87" height=".88" x="4" y="1" fill="%23E2D8F3" />
+<rect width=".87" height=".88" x="5" y="1" fill="%23DD001D" />
+<rect width=".87" height=".88" x="6" y="1" fill="%23F75D50" />
+<rect width=".87" height=".88" x="7" y="1" fill="%23FFA095" />
+<rect width=".87" height=".88" x="8" y="1" fill="%23FFC8C6" />
+<rect width=".87" height=".88" x="9" y="1" fill="%23FCDFE0" />
+<rect width=".87" height=".88" x="10" y="1" fill="%23009139" />
+<rect width=".87" height=".88" x="11" y="1" fill="%2339B571" />
+<rect width=".87" height=".88" x="12" y="1" fill="%2398D2B1" />
+<rect width=".87" height=".88" x="13" y="1" fill="%23C8E4D5" />
+<rect width=".87" height=".88" x="14" y="1" fill="%23E0ECE8" />
+<rect width=".87" height=".88" x="15" y="1" fill="%23E1DFEA" />
+<rect width=".87" height=".88" x="16" y="1" fill="%23CBC8D7" />
+<rect width=".87" height=".88" x="17" y="1" fill="%239E97A8" />
+<rect width=".87" height=".88" x="18" y="1" fill="%23736B79" />
+<rect width=".87" height=".88" x="19" y="1" fill="%234B444E" />
+<rect width=".87" height=".88" x="20" y="1" fill="%231C282F" />
+<rect width=".87" height=".88" x="21" y="1" fill="%2302202A" />
+<rect width=".87" height=".88" x="22" y="1" fill="%236E1C2B" />
+<rect width=".87" height=".88" x="23" y="1" fill="%231C452E" />
+<rect width=".87" height=".88" x="0" y="2" fill="%231B1B1B" />
+<rect width=".87" height=".88" x="1" y="2" fill="%235F4146" />
+<rect width=".87" height=".88" x="2" y="2" fill="%239E7F88" />
+<rect width=".87" height=".88" x="3" y="2" fill="%23CCB5C0" />
+<rect width=".87" height=".88" x="4" y="2" fill="%23E3D6DF" />
+<rect width=".87" height=".88" x="5" y="2" fill="%23C4534C" />
+<rect width=".87" height=".88" x="6" y="2" fill="%23864541" />
+<rect width=".87" height=".88" x="7" y="2" fill="%237B201D" />
+<rect width=".87" height=".88" x="8" y="2" fill="%23882159" />
+<rect width=".87" height=".88" x="9" y="2" fill="%23866918" />
+<rect width=".87" height=".88" x="10" y="2" fill="%23004A27" />
+<rect width=".87" height=".88" x="11" y="2" fill="%2300516C" />
+<rect width=".87" height=".88" x="12" y="2" fill="%23272254" />
+<rect width=".87" height=".88" x="13" y="2" fill="%23E79691" />
+<rect width=".87" height=".88" x="14" y="2" fill="%23FF9400" />
+<rect width=".87" height=".88" x="15" y="2" fill="%23F2096D" />
+<rect width=".87" height=".88" x="16" y="2" fill="%23A62096" />
+<rect width=".87" height=".88" x="17" y="2" fill="%23A1CC00" />
+<rect width=".87" height=".88" x="18" y="2" fill="%230095A3" />
+<rect width=".87" height=".88" x="19" y="2" fill="%230066BA" />
+<rect width=".87" height=".88" x="20" y="2" fill="%23F5F4FB" />
+<rect width=".87" height=".88" x="21" y="2" fill="%23232412" />
+<rect width=".87" height=".88" x="22" y="2" fill="%23883C63" />
+<rect width=".87" height=".88" x="23" y="2" fill="%23154757" />
+</svg>'/><ul><li><code>naively_convert</code></li></ul><img src='data:image/svg+xml;utf-8,<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1"
+     width="180mm" height="25mm"
+     viewBox="0 0 24 3" preserveAspectRatio="none"
+     shape-rendering="crispEdges" stroke="none">
+<rect width=".87" height=".88" x="0" y="0" fill="%2300FFFF" />
+<rect width=".87" height=".88" x="1" y="0" fill="%234DFFFF" />
+<rect width=".87" height=".88" x="2" y="0" fill="%2399FFFF" />
+<rect width=".87" height=".88" x="3" y="0" fill="%23CCFFFF" />
+<rect width=".87" height=".88" x="4" y="0" fill="%23E6FFFF" />
+<rect width=".87" height=".88" x="5" y="0" fill="%23FF00FF" />
+<rect width=".87" height=".88" x="6" y="0" fill="%23FF4DFF" />
+<rect width=".87" height=".88" x="7" y="0" fill="%23FF99FF" />
+<rect width=".87" height=".88" x="8" y="0" fill="%23FFCCFF" />
+<rect width=".87" height=".88" x="9" y="0" fill="%23FFE6FF" />
+<rect width=".87" height=".88" x="10" y="0" fill="%23FFFF00" />
+<rect width=".87" height=".88" x="11" y="0" fill="%23FFFF4D" />
+<rect width=".87" height=".88" x="12" y="0" fill="%23FFFF99" />
+<rect width=".87" height=".88" x="13" y="0" fill="%23FFFFCC" />
+<rect width=".87" height=".88" x="14" y="0" fill="%23FFFFE6" />
+<rect width=".87" height=".88" x="15" y="0" fill="%23E6E6E6" />
+<rect width=".87" height=".88" x="16" y="0" fill="%23CCCCCC" />
+<rect width=".87" height=".88" x="17" y="0" fill="%23999999" />
+<rect width=".87" height=".88" x="18" y="0" fill="%23666666" />
+<rect width=".87" height=".88" x="19" y="0" fill="%23333333" />
+<rect width=".87" height=".88" x="20" y="0" fill="%23000000" />
+<rect width=".87" height=".88" x="21" y="0" fill="%23000000" />
+<rect width=".87" height=".88" x="22" y="0" fill="%23661F1F" />
+<rect width=".87" height=".88" x="23" y="0" fill="%2333330F" />
+<rect width=".87" height=".88" x="0" y="1" fill="%230000FF" />
+<rect width=".87" height=".88" x="1" y="1" fill="%234D4DFF" />
+<rect width=".87" height=".88" x="2" y="1" fill="%239999FF" />
+<rect width=".87" height=".88" x="3" y="1" fill="%23CCCCFF" />
+<rect width=".87" height=".88" x="4" y="1" fill="%23E6E6FF" />
+<rect width=".87" height=".88" x="5" y="1" fill="%23FF0000" />
+<rect width=".87" height=".88" x="6" y="1" fill="%23FF4D4D" />
+<rect width=".87" height=".88" x="7" y="1" fill="%23FF9999" />
+<rect width=".87" height=".88" x="8" y="1" fill="%23FFCCCC" />
+<rect width=".87" height=".88" x="9" y="1" fill="%23FFE6E6" />
+<rect width=".87" height=".88" x="10" y="1" fill="%2300FF00" />
+<rect width=".87" height=".88" x="11" y="1" fill="%234DFF4D" />
+<rect width=".87" height=".88" x="12" y="1" fill="%2399FF99" />
+<rect width=".87" height=".88" x="13" y="1" fill="%23CCFFCC" />
+<rect width=".87" height=".88" x="14" y="1" fill="%23E6FFE6" />
+<rect width=".87" height=".88" x="15" y="1" fill="%23E6F0F0" />
+<rect width=".87" height=".88" x="16" y="1" fill="%23CCE0E0" />
+<rect width=".87" height=".88" x="17" y="1" fill="%2399BABA" />
+<rect width=".87" height=".88" x="18" y="1" fill="%23668C8C" />
+<rect width=".87" height=".88" x="19" y="1" fill="%23335959" />
+<rect width=".87" height=".88" x="20" y="1" fill="%23002626" />
+<rect width=".87" height=".88" x="21" y="1" fill="%23000000" />
+<rect width=".87" height=".88" x="22" y="1" fill="%2352001F" />
+<rect width=".87" height=".88" x="23" y="1" fill="%230F330F" />
+<rect width=".87" height=".88" x="0" y="2" fill="%23000000" />
+<rect width=".87" height=".88" x="1" y="2" fill="%234D4D4D" />
+<rect width=".87" height=".88" x="2" y="2" fill="%23999999" />
+<rect width=".87" height=".88" x="3" y="2" fill="%23CCCCCC" />
+<rect width=".87" height=".88" x="4" y="2" fill="%23E6E6E6" />
+<rect width=".87" height=".88" x="5" y="2" fill="%23CC4D4D" />
+<rect width=".87" height=".88" x="6" y="2" fill="%237A3D3D" />
+<rect width=".87" height=".88" x="7" y="2" fill="%237A0000" />
+<rect width=".87" height=".88" x="8" y="2" fill="%237A007A" />
+<rect width=".87" height=".88" x="9" y="2" fill="%237A7A00" />
+<rect width=".87" height=".88" x="10" y="2" fill="%23007A00" />
+<rect width=".87" height=".88" x="11" y="2" fill="%23007A7A" />
+<rect width=".87" height=".88" x="12" y="2" fill="%2300007A" />
+<rect width=".87" height=".88" x="13" y="2" fill="%23E69999" />
+<rect width=".87" height=".88" x="14" y="2" fill="%23FF9900" />
+<rect width=".87" height=".88" x="15" y="2" fill="%23FF0099" />
+<rect width=".87" height=".88" x="16" y="2" fill="%239900FF" />
+<rect width=".87" height=".88" x="17" y="2" fill="%2399FF00" />
+<rect width=".87" height=".88" x="18" y="2" fill="%2300FF99" />
+<rect width=".87" height=".88" x="19" y="2" fill="%230099FF" />
+<rect width=".87" height=".88" x="20" y="2" fill="%23FFFFFF" />
+<rect width=".87" height=".88" x="21" y="2" fill="%23000000" />
+<rect width=".87" height=".88" x="22" y="2" fill="%23661F66" />
+<rect width=".87" height=".88" x="23" y="2" fill="%230F3333" />
+</svg>'/><ul><li>default conversion</li></ul><img src='data:image/svg+xml;utf-8,<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1"
+     width="180mm" height="25mm"
+     viewBox="0 0 24 3" preserveAspectRatio="none"
+     shape-rendering="crispEdges" stroke="none">
+<rect width=".87" height=".88" x="0" y="0" fill="%2300ADE4" />
+<rect width=".87" height=".88" x="1" y="0" fill="%232AB9E6" />
+<rect width=".87" height=".88" x="2" y="0" fill="%238DCEEA" />
+<rect width=".87" height=".88" x="3" y="0" fill="%23D0DFF5" />
+<rect width=".87" height=".88" x="4" y="0" fill="%23E8E9FF" />
+<rect width=".87" height=".88" x="5" y="0" fill="%23F71D8D" />
+<rect width=".87" height=".88" x="6" y="0" fill="%23E753A0" />
+<rect width=".87" height=".88" x="7" y="0" fill="%23E19BC3" />
+<rect width=".87" height=".88" x="8" y="0" fill="%23E5CDE8" />
+<rect width=".87" height=".88" x="9" y="0" fill="%23EBE3FF" />
+<rect width=".87" height=".88" x="10" y="0" fill="%23E6CD07" />
+<rect width=".87" height=".88" x="11" y="0" fill="%23EBD748" />
+<rect width=".87" height=".88" x="12" y="0" fill="%23F2E595" />
+<rect width=".87" height=".88" x="13" y="0" fill="%23F5EFD3" />
+<rect width=".87" height=".88" x="14" y="0" fill="%23F5F2F6" />
+<rect width=".87" height=".88" x="15" y="0" fill="%23E6E2ED" />
+<rect width=".87" height=".88" x="16" y="0" fill="%23CDCCCD" />
+<rect width=".87" height=".88" x="17" y="0" fill="%23949EA2" />
+<rect width=".87" height=".88" x="18" y="0" fill="%23637680" />
+<rect width=".87" height=".88" x="19" y="0" fill="%23415660" />
+<rect width=".87" height=".88" x="20" y="0" fill="%232B3E44" />
+<rect width=".87" height=".88" x="21" y="0" fill="%236D033F" />
+<rect width=".87" height=".88" x="22" y="0" fill="%23C43B22" />
+<rect width=".87" height=".88" x="23" y="0" fill="%23476209" />
+<rect width=".87" height=".88" x="0" y="1" fill="%234C2BB8" />
+<rect width=".87" height=".88" x="1" y="1" fill="%236A57C7" />
+<rect width=".87" height=".88" x="2" y="1" fill="%239D98DB" />
+<rect width=".87" height=".88" x="3" y="1" fill="%23CDCAF0" />
+<rect width=".87" height=".88" x="4" y="1" fill="%23E4E0FF" />
+<rect width=".87" height=".88" x="5" y="1" fill="%23FF4309" />
+<rect width=".87" height=".88" x="6" y="1" fill="%23FF703D" />
+<rect width=".87" height=".88" x="7" y="1" fill="%23F6AC86" />
+<rect width=".87" height=".88" x="8" y="1" fill="%23EFD6C8" />
+<rect width=".87" height=".88" x="9" y="1" fill="%23F0E8F0" />
+<rect width=".87" height=".88" x="10" y="1" fill="%2313D566" />
+<rect width=".87" height=".88" x="11" y="1" fill="%2359D282" />
+<rect width=".87" height=".88" x="12" y="1" fill="%23ADDAA9" />
+<rect width=".87" height=".88" x="13" y="1" fill="%23DFE7D3" />
+<rect width=".87" height=".88" x="14" y="1" fill="%23EFEEF2" />
+<rect width=".87" height=".88" x="15" y="1" fill="%23E7E5F4" />
+<rect width=".87" height=".88" x="16" y="1" fill="%23CFD3D8" />
+<rect width=".87" height=".88" x="17" y="1" fill="%2397A9AE" />
+<rect width=".87" height=".88" x="18" y="1" fill="%236A7F89" />
+<rect width=".87" height=".88" x="19" y="1" fill="%234D5B65" />
+<rect width=".87" height=".88" x="20" y="1" fill="%233A4146" />
+<rect width=".87" height=".88" x="21" y="1" fill="%23006087" />
+<rect width=".87" height=".88" x="22" y="1" fill="%23840F15" />
+<rect width=".87" height=".88" x="23" y="1" fill="%23006326" />
+<rect width=".87" height=".88" x="0" y="2" fill="%235C4444" />
+<rect width=".87" height=".88" x="1" y="2" fill="%23796869" />
+<rect width=".87" height=".88" x="2" y="2" fill="%23ACA09B" />
+<rect width=".87" height=".88" x="3" y="2" fill="%23D6CECB" />
+<rect width=".87" height=".88" x="4" y="2" fill="%23E8E3ED" />
+<rect width=".87" height=".88" x="5" y="2" fill="%23DF6A4A" />
+<rect width=".87" height=".88" x="6" y="2" fill="%23985349" />
+<rect width=".87" height=".88" x="7" y="2" fill="%23A62E19" />
+<rect width=".87" height=".88" x="8" y="2" fill="%238D1956" />
+<rect width=".87" height=".88" x="9" y="2" fill="%2378791F" />
+<rect width=".87" height=".88" x="10" y="2" fill="%23127A3F" />
+<rect width=".87" height=".88" x="11" y="2" fill="%23015D76" />
+<rect width=".87" height=".88" x="12" y="2" fill="%23382469" />
+<rect width=".87" height=".88" x="13" y="2" fill="%23E5A78A" />
+<rect width=".87" height=".88" x="14" y="2" fill="%23EE9007" />
+<rect width=".87" height=".88" x="15" y="2" fill="%23F41F52" />
+<rect width=".87" height=".88" x="16" y="2" fill="%23A81E9D" />
+<rect width=".87" height=".88" x="17" y="2" fill="%238CC82D" />
+<rect width=".87" height=".88" x="18" y="2" fill="%2300ADA3" />
+<rect width=".87" height=".88" x="19" y="2" fill="%230A6FC9" />
+<rect width=".87" height=".88" x="20" y="2" fill="%23F3F4FF" />
+<rect width=".87" height=".88" x="21" y="2" fill="%23798D00" />
+<rect width=".87" height=".88" x="22" y="2" fill="%23B6297B" />
+<rect width=".87" height=".88" x="23" y="2" fill="%23005C7A" />
+</svg>'/><h2 id="Arithmetic"><a class="docs-heading-anchor" href="#Arithmetic">Arithmetic</a><a id="Arithmetic-1"></a><a class="docs-heading-anchor-permalink" href="#Arithmetic" title="Permalink"></a></h2><p>If we consider each CMYK component value as an amount of ink, it is physically reasonable to assume the linearity. Therefore, the arithmetic operations of addition, subtraction and real number scaling are implemented. However, there are no definitions for multiplying CMYK colors or for arithmetic between different color spaces.</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; CMYK(0.1, 0.2, 0.3, 0.5) + CMYK(0.0, 0.2, 0.125, 0.25)</code><code class="nohighlight hljs ansi" style="display:block;">CMYK{Float64}(0.1,0.4,0.425,0.75)</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; CMYK(0.1, 0.2, 0.3, 0.5) - CMYK(0.0, 0.2, 0.125, 0.25)</code><code class="nohighlight hljs ansi" style="display:block;">CMYK{Float64}(0.1,0.0,0.175,0.25)</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; CMYK(0.1, 0.2, 0.3, 0.5) * 0.5</code><code class="nohighlight hljs ansi" style="display:block;">CMYK{Float64}(0.05,0.1,0.15,0.25)</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; CMYK(0.1, 0.2, 0.3, 0.5) / 2</code><code class="nohighlight hljs ansi" style="display:block;">CMYK{Float64}(0.05,0.1,0.15,0.25)</code></pre><p>Note that if the component type is a <code>FixedPoint</code> type such as <code>N0f8</code>, the operation result will be wrapped around when an overflow occurs.</p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; using FixedPointNumbers;</code><code class="nohighlight hljs ansi" style="display:block;">ERROR: ArgumentError: Package FixedPointNumbers not found in current path.
+- Run `import Pkg; Pkg.add(&quot;FixedPointNumbers&quot;)` to install the FixedPointNumbers package.</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; CMYK{N0f8}(0.2, 0.4, 0.6, 0.8) + CMYK{N0f8}(0.4, 0.4, 0.4, 0.4) # overflow in K</code><code class="nohighlight hljs ansi" style="display:block;">ERROR: UndefVarError: `N0f8` not defined</code></pre></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="references/">References »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.3.0 on <span class="colophon-date" title="Wednesday 3 April 2024 19:57">Wednesday 3 April 2024</span>. Using Julia version 1.10.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
