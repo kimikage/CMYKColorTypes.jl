@@ -1,7 +1,9 @@
 name: CI
 on:
   push:
-    branches: main
+    branches:
+      - 'main'
+      - 'release-*'
     tags: ['*']
   pull_request:
   workflow_dispatch:
@@ -22,30 +24,42 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.6'
+          - '1.10'
           - '1'
           - 'nightly'
         os:
           - ubuntu-latest
           - windows-latest
-          - macos-latest
+          - macos-15-intel
         arch:
           - x64
         include:
           - os: ubuntu-latest
             version: '1'
             arch: x86
+          - os: ubuntu-latest
+            version: '1.0'
+            arch: x64
+          - os: macos-latest
+            version: '1.10'
+            arch: aarch64
+          - os: macos-latest
+            version: '1'
+            arch: aarch64
+          - os: macos-latest
+            version: 'nightly'
+            arch: aarch64
     steps:
-      - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@v2
+      - uses: actions/checkout@v7
+      - uses: julia-actions/setup-julia@v3
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
-      - uses: julia-actions/cache@v1
+      - uses: julia-actions/cache@v3
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v7
         with:
           files: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -58,11 +72,11 @@ jobs:
       contents: write
       statuses: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@v2
+      - uses: actions/checkout@v7
+      - uses: julia-actions/setup-julia@v3
         with:
-          version: '1'
-      - uses: julia-actions/cache@v1
+          version: 'lts'
+      - uses: julia-actions/cache@v3
       - name: Configure doc environment
         shell: julia --project=docs --color=yes {0}
         run: |
